@@ -2,7 +2,8 @@ from flask import Flask, render_template, request, jsonify
 from core.ai_engine import AIEngine
 import os
 
-app = Flask(__name__, template_folder='../ui', static_folder='../ui', static_url_path='/static')
+app = Flask(__name__, template_folder='../ui', static_folder='../ui', static_url_path='')
+
 
 ai_engine = AIEngine()
 
