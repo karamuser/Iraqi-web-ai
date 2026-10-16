@@ -13,7 +13,8 @@ class AIEngine:
             genai.configure(api_key=api_key)
             
         # استخدام أحدث نموذج Gemini مخصص للمهام التعليمية والتحليلية
-        self.model_name = 'gemini-3.8-flash'
+        self.model_name = 'gemini-2.0-flash'
+        
         
 
     def generate_response(self, user_text: str, grade_level: str) -> str:
