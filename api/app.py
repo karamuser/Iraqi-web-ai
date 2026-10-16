@@ -6,7 +6,7 @@ app = Flask(__name__, template_folder='ui', static_folder='ui')
 ai_engine = AIEngine()
 
 @app.route('/')
-index():
+def index():
     return render_template('index.html')
 
 @app.route('/api/chat', methods=['POST'])
