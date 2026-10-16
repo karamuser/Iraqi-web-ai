@@ -1,39 +1,54 @@
 import os
 import google.generativeai as genai
+from core.curriculum_db import IraqiCurriculumDB
 
 class AIEngine:
-    def __init__(self, api_key=None):
-        # استخدام مفتاح الـ API المرسل أو من متغيرات البيئة
-        self.api_key = api_key or os.getenv("GEMINI_API_KEY", "")
-        if self.api_key:
-            genai.configure(api_key=self.api_key)
-        # استخدام نموذج جميناي الحديث والأسرع
-        self.model = genai.GenerativeModel('gemini-1.5-flash')
+    def __init__(self):
+        # تهيئة قاعدة بيانات المناهج العراقية
+        self.curriculum_db = IraqiCurriculumDB()
         
-    def generate_response(self, user_text, grade_level="السادس الإعدادي", custom_api_key=None):
-        try:
-            # استخدام مفتاح مؤقت إذا أدخله المستخدم من واجهة الإعدادات
-            key_to_use = custom_api_key or self.api_key
-            if not key_to_use:
-                return "⚠️ تنبيه: يرجى إدخال مفتاح Google Gemini API الخاص بك في قائمة الإعدادات الجانبية لكي يتم تفعيل الذكاء الاصطناعي."
+        # استدعاء مفتاح الـ API من بيئة الخادم بشكل آمن
+        api_key = os.environ.get("GEMINI_API_KEY", "")
+        if api_key:
+            genai.configure(api_key=api_key)
             
-            genai.configure(api_key=key_to_use)
+        # استخدام أحدث نموذج Gemini مخصص للمهام التعليمية والتحليلية
+        self.model_name = 'gemini-1.5-pro'
 
-            # توجيه صارم للذكاء الاصطناعي للاهتمام بالشرح أولاً ثم الناتج للمناهج العراقية
-            system_instruction = (
-                f"أنت خبير ومدرس استثنائي للمناهج الدراسية الرسمية لوزارة التربية في العراق. "
-                f"المرحلة الدراسية للطالب حالياً هي: {grade_level}. "
-                f"قواعد الإجابة الصارمة التي يجب أن تلتزم بها:\n"
-                f"1. ابدأ دائماً بـ **الشرح المفصل والخطوات المبسطة** لفهم الفكرة العلمية أو المسألة قبل إعطاء الإجابة النهائية.\n"
-                f"2. اجعل أسلوبك تربوي، محفز، ومطابق للمقررات المدرسية العراقية.\n"
-                f"3. في النهاية ضع الناتج النهائي أو الخلاصة بشكل واضح."
+    def generate_response(self, user_text: str, grade_level: str) -> str:
+        """
+        توليد استجابة ذكية موجهة حصرياً للطالب العراقي، تدمج بيانات المنهج وتلتزم بقواعد الشرح أولاً.
+        """
+        try:
+            api_key = os.environ.get("GEMINI_API_KEY", "")
+            if not api_key:
+                return "عذراً، مفتاح السيرفر (GEMINI_API_KEY) غير مُعرّف في إعدادات البيئة."
+
+            genai.configure(api_key=api_key)
+            
+            # جلب سياق المنهج العراقي والقواعد الصارمة الخاصة بالمرحلة
+            system_instruction = self.curriculum_db.get_structured_prompt_context(grade_level, user_text)
+            
+            # تهيئة النموذج مع التوجيهات التعليمية الصارمة
+            generation_config = {
+                "temperature": 0.3,
+                "max_output_tokens": 1500,
+            }
+            
+            model = genai.GenerativeModel(
+                model_name=self.model_name,
+                system_instruction=system_instruction,
+                generation_config=generation_config
             )
+
+            # إرسال السؤال للنموذج
+            response = model.generate_content(user_text)
             
-            chat = self.model.start_chat(history=[])
-            prompt = f"{system_instruction}\n\nسؤال الطالب: {user_text}"
-            
-            response = chat.send_message(prompt)
-            return response.text
+            if response and response.text:
+                return response.text
+            else:
+                return "عذراً، لم يتمكن النموذج من توليد إجابة واضحة. حاول مرة أخرى."
+
         except Exception as e:
-            return f"عذراً، حدث خطأ أثناء الاتصال بخوادم Google Gemini الذكية: {str(e)}"
-          
+            return f"حدث خطأ أثناء معالجة الطلب عبر خوارزميات الذكاء الاصطناعي: {str(e)}"
+            
