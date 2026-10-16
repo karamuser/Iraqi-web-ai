@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المساعد الذكي للمناهج العراقية - Google Gemini</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-layout">
+        <!-- الشريط الجانبي للإعدادات والمراحل -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>🎓 المنهج العراقي الذكي</h2>
+                <p>مدعوم بـ Google Gemini AI</p>
+            </div>
+            
+            <div class="settings-group">
+                <label for="grade-select">اختر المرحلة الدراسية:</label>
+                <select id="grade-select">
+                    <option value="السادس الإعدادي">السادس الإعدادي (علمي / أدبي)</option>
+                    <option value="الثالث المتوسط">الثالث المتوسط</option>
+                    <option value="السادس الابتدائي">السادس الابتدائي</option>
+                    <option value="الخامس الإعدادي">الخامس الإعدادي</option>
+                    <option value="الثاني المتوسط">الثاني المتوسط</option>
+                </select>
+            </div>
+
+            <div class="settings-group">
+                <label for="api-key-input">مفتاح Google Gemini API:</label>
+                <input type="password" id="api-key-input" placeholder="AIzaSy...">
+                <small class="hint">يُحفظ محلياً في متصفحك فقط للاستخدام الآمن.</small>
+            </div>
+
+            <div class="sidebar-footer">
+                <button class="btn-danger" onclick="clearChat()">مسح المحادثة</button>
+            </div>
+        </aside>
+
+        <!-- منطقة الدردشة الرئيسية -->
+        <main class="chat-main">
+            <header class="chat-header">
+                <h3>مساعدك التعليمي الشخصي</h3>
+                <span class="status-badge">جاهز للشرح والحل</span>
+            </header>
+            
+            <div id="chat-container">
+                <div class="message ai-msg">
+                    <div class="msg-content">أهلاً بك يا طالب العراق! 📚<br>أنا مساعدك الذكي المرتبط بنظم Google المتطورة. لقد تم برمجتي لأهتم أولاً بـ <b>شرح الفكرة والخطوات بالتفصيل</b> قبل إعطائك الناتج النهائي لتفهم المادة بعمق.<br>كيف يمكنني مساعدتك في دروسك اليوم؟</div>
+                </div>
+            </div>
+
+            <div class="input-area">
+                <textarea id="user-input" placeholder="اكتب سؤالك أو مسألتك الدراسية هنا (مثلاً: اشرح لي قانون فاراداي أو حل هذه المسألة)..." rows="1" onkeypress="handleKeyPress(event)"></textarea>
+                <button id="send-btn" onclick="sendMessage()">إرسال</button>
+            </div>
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
